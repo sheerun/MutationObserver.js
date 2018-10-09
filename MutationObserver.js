@@ -14,8 +14,11 @@
     - https://bugzilla.mozilla.org/show_bug.cgi?id=749920
  * Don't use WebKitMutationObserver as Safari (6.0.5-6.1) use a buggy implementation
 */
-window.MutationObserver = window.MutationObserver || (function(undefined) {
-    "use strict";
+module.exports = (function(undefined) {
+    if (typeof window !== 'undefined' && typeof window.MutationObserver !== 'undefined') {
+      return window.MutationObserver
+    }
+
     /**
      * @param {function(Array.<MutationRecord>, MutationObserver)} listener
      * @constructor
@@ -212,9 +215,12 @@ window.MutationObserver = window.MutationObserver || (function(undefined) {
 
     // Check if the environment has the attribute bug (#4) which cause
     // element.attributes.style to always be null.
-    var hasAttributeBug = document.createElement("i");
-    hasAttributeBug.style.top = 0;
-    hasAttributeBug = hasAttributeBug.attributes.style.value != "null";
+    var hasAttributeBug = false
+    if (typeof document !== 'undefined') {
+      var testElement = document.createElement('i')
+      testElement.style.top = 0
+      hasAttributeBug = testElement.attributes.style.value != 'null'
+    }
 
     /**
      * Gets an attribute value in an environment without attribute bug
@@ -617,4 +623,4 @@ window.MutationObserver = window.MutationObserver || (function(undefined) {
     }
 
     return MutationObserver;
-})(void 0);
+}(void 0))
